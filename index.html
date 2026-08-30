@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon4rkaa - Games Zerados</title>
+    <style>
+        /* Estilos gerais - inspirados no tema do canal */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #0f0f0f;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Cabeçalho */
+        header {
+            text-align: center;
+            padding: 30px 0 20px;
+            border-bottom: 2px solid #cc0000;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
+        }
+
+        header h1 span {
+            color: #cc0000;
+        }
+
+        header p {
+            color: #aaa;
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
+
+        /* Grade de jogos - ajustada para capas no formato 1440x2160 */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .game-card {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(204, 0, 0, 0.4);
+            border-color: #cc0000;
+        }
+
+        .game-card .image-wrapper {
+            width: 100%;
+            padding-top: 150%; /* Proporção 1440/2160 = 0.666... → 150% */
+            position: relative;
+            overflow: hidden;
+            background-color: #111;
+        }
+
+        .game-card .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Mantém a imagem inteira, sem cortes */
+            object-position: center;
+            display: block;
+        }
+
+        .game-card .game-title {
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #eee;
+            background-color: #111;
+            border-top: 1px solid #333;
+            flex-shrink: 0;
+        }
+
+        /* Modal / Página de detalhes (overlay) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            max-width: 1000px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            border: 1px solid #444;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            line-height: 1;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .modal-body {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 10px;
+            align-items: flex-start;
+        }
+
+        .modal-image {
+            flex: 0 0 280px;
+            max-width: 280px;
+            width: 100%;
+        }
+
+        .modal-image .image-wrapper {
+            width: 100%;
+            padding-top: 150%; /* Proporção 1440/2160 = 150% */
+            position: relative;
+            background-color: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        .modal-image .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Mantém a imagem inteira, sem cortes */
+            object-position: center;
+            display: block;
+        }
+
+        .modal-info {
+            flex: 1 1 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 250px;
+        }
+
+        .modal-info h2 {
+            font-size: 2rem;
+            color: #fff;
+            border-bottom: 2px solid #cc0000;
+            padding-bottom: 10px;
+        }
+
+        .modal-info .sinopse {
+            color: #ccc;
+            line-height: 1.7;
+            font-size: 1rem;
+            text-align: justify;
+            background-color: #111;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #cc0000;
+            flex: 1;
+        }
+
+        .modal-info .playlist-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #cc0000;
+            color: #fff;
+            text-align: center;
+            padding: 14px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: background 0.2s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+            width: fit-content;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(204, 0, 0, 0.4);
+            gap: 8px;
+        }
+
+        .modal-info .playlist-btn:hover {
+            background-color: #ff1a1a;
+            transform: scale(1.02);
+        }
+
+        .modal-info .playlist-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* Rodapé */
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            text-align: center;
+            color: #555;
+            border-top: 1px solid #222;
+            width: 100%;
+        }
+
+        footer a {
+            color: #cc0000;
+            text-decoration: none;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Responsivo */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 20px;
+            }
+            .modal-body {
+                flex-direction: column;
+                align-items: center;
+            }
+            .modal-image {
+                flex: 0 0 auto;
+                max-width: 220px;
+                width: 100%;
+            }
+            .modal-info h2 {
+                font-size: 1.5rem;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-info .playlist-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+            }
+            .game-card .game-title {
+                font-size: 0.8rem;
+                padding: 8px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header>
+            <h1>Mon<span>4</span>rkaa</h1>
+            <p>🎮 Games que já zerei — clique na capa para ver a sinopse</p>
+        </header>
+
+        <!-- Grade de jogos -->
+        <div class="games-grid" id="gamesGrid">
+            <!-- Os cards serão inseridos via JavaScript -->
+        </div>
+
+        <footer>
+            <p>© 2026 <a href="https://www.youtube.com/c/mon4rka" target="_blank">Mon4rkaa</a> — Todos os games zerados com muito ❤️</p>
+        </footer>
+    </div>
+
+    <!-- Modal / Página de detalhes -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <div class="image-wrapper">
+                        <img id="modalGameImg" src="" alt="Capa do game">
+                    </div>
+                </div>
+                <div class="modal-info">
+                    <h2 id="modalGameTitle">Título</h2>
+                    <div class="sinopse" id="modalSinopse">
+                        Sinopse do game...
+                    </div>
+                    <a href="#" id="modalPlaylistLink" class="playlist-btn" target="_blank">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path d="M10 15l5-3-5-3v6zm-2 4H5V5h3v14zm4 0H9V5h3v14zm4 0h-3V5h3v14z"/>
+                        </svg>
+                        Playlist completa no YouTube
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  BASE DE DADOS DOS JOGOS (adicione aqui os seus)
+        // ============================================================
+        const gamesData = [
+            {
+                id: 1,
+                titulo: "Resonance: A Plague Tale Legacy",
+                capa: "https://store-images.s-microsoft.com/image/apps.3115.14332070469741251.b219f2ed-9161-4e36-815d-0a90a76aae89.664db98d-75c1-4f0b-9368-8fe70012133a",
+                // ⚠️ IMPORTANTE: Substitua pelo link REAL da capa do jogo (1440x2160).
+                // Sugestão: use um serviço como Imgur ou hospede as imagens.
+                sinopse: "Em Resonance: A Plague Tale Legacy, embarque em uma nova jornada sombria marcada por mistério, sobrevivência e uma atmosfera medieval repleta de perigos. Enquanto o mundo ao redor mergulha em caos, antigos segredos começam a despertar, colocando os protagonistas diante de ameaças que vão muito além daquilo que imaginavam. Prepare-se para explorar cenários devastados, enfrentar inimigos perigosos e descobrir uma história repleta de tensão, emoção e momentos marcantes. Entre mistérios, conflitos e escolhas difíceis, cada passo revela novos detalhes de um legado cercado pela escuridão.",
+                playlist: "https://www.youtube.com/watch?v=OsGMuNvXftQ&list=PLUqwdspOSwmw"
+                // ⚠️ Substitua pelo link REAL da playlist completa no seu canal
+            },
+            // Adicione mais jogos aqui seguindo o mesmo formato:
+            
+            
+            
+            
+            
+            
+            {
+                id: 2,
+                titulo: "Darksiders Warmastered Edition",
+                capa: "https://store-images.s-microsoft.com/image/apps.61791.66204197587713833.6acce86f-4c60-4f18-a892-7304cc9e3c0a.72c383a6-6770-4c2e-a8f1-7f7307ea4690",
+                sinopse: "A história começa com War sendo enganado pelas forças do mal para iniciar prematuramente o Apocalipse, quebrando assim o equilíbrio sagrado entre o Céu e o Inferno . No caos que se seguiu, os exércitos demoníacos derrotaram as hostes celestiais e tomaram o controle da Terra .Por este crime, War é levado perante o Charred Council (Conselho Sagrado/Carbonizado), que o julga, o despoja de seus poderes e o condena. No entanto, para provar sua inocência e descobrir quem o incriminou, ele recebe uma chance: retornar à Terra devastada para encontrar a verdade e punir os verdadeiros culpados.",
+                playlist: "https://www.youtube.com/watch?v=thMlov-SyU4&list=PLuKsM-R5_1Yy9zxgIj7SioIabyxHUt812"
+            },
+        ];
+
+        // ============================================================
+        //  RENDERIZA OS CARDS NA GRADE
+        // ============================================================
+        const grid = document.getElementById('gamesGrid');
+
+        function renderGames() {
+            grid.innerHTML = '';
+            gamesData.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.setAttribute('data-id', game.id);
+                card.innerHTML = `
+                    <div class="image-wrapper">
+                        <img src="${game.capa}" alt="${game.titulo}" loading="lazy">
+                    </div>
+                    <div class="game-title">${game.titulo}</div>
+                `;
+                card.addEventListener('click', () => openModal(game.id));
+                grid.appendChild(card);
+            });
+        }
+
+        // ============================================================
+        //  CONTROLE DO MODAL
+        // ============================================================
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const modalImg = document.getElementById('modalGameImg');
+        const modalTitle = document.getElementById('modalGameTitle');
+        const modalSinopse = document.getElementById('modalSinopse');
+        const modalPlaylist = document.getElementById('modalPlaylistLink');
+
+        function openModal(gameId) {
+            const game = gamesData.find(g => g.id === gameId);
+            if (!game) return;
+
+            modalImg.src = game.capa;
+            modalImg.alt = game.titulo;
+            modalTitle.textContent = game.titulo;
+            modalSinopse.textContent = game.sinopse;
+            modalPlaylist.href = game.playlist;
+
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Eventos para fechar o modal
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ============================================================
+        //  INICIALIZA
+        // ============================================================
+        renderGames();
+    </script>
+</body>
+</html>
