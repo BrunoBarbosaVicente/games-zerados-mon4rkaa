@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon4rkaa - Games Zerados</title>
     <style>
-        /* TODOS OS ESTILOS ANTERIORES MANTIDOS */
+        /* ESTILOS GERAIS */
         * {
             margin: 0;
             padding: 0;
@@ -28,6 +28,7 @@
             padding: 20px;
         }
 
+        /* CABEÇALHO */
         header {
             text-align: center;
             padding: 30px 0 20px;
@@ -53,6 +54,7 @@
             margin-top: 8px;
         }
 
+        /* BOTÕES DE AÇÃO */
         .action-buttons {
             display: flex;
             flex-wrap: wrap;
@@ -124,6 +126,7 @@
             flex-shrink: 0;
         }
 
+        /* GRADE DE GAMES ZERADOS */
         .games-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -150,7 +153,7 @@
 
         .game-card .image-wrapper {
             width: 100%;
-            padding-top: 150%;
+            padding-top: 150%; /* Proporção 1440/2160 */
             position: relative;
             overflow: hidden;
             background-color: #111;
@@ -162,7 +165,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            /* 🔥 MUDANÇA: object-fit: cover para preencher totalmente */
+            object-fit: cover;
             object-position: center;
             display: block;
         }
@@ -178,6 +182,7 @@
             flex-shrink: 0;
         }
 
+        /* SEÇÃO DE DESTAQUE - PRÓXIMOS JOGOS */
         .proximos-jogos {
             background: linear-gradient(145deg, #1a1a2e, #16213e);
             border-radius: 16px;
@@ -221,6 +226,7 @@
             transform: scale(1.05);
         }
 
+        /* MODAL DE ENQUETE */
         .modal-enquete {
             display: none;
             position: fixed;
@@ -428,6 +434,7 @@
             animation: fadeIn 0.5s ease;
         }
 
+        /* MODAL DOS GAMES ZERADOS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -512,7 +519,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            /* 🔥 MUDANÇA: object-fit: cover para preencher totalmente */
+            object-fit: cover;
             object-position: center;
             display: block;
         }
@@ -576,6 +584,7 @@
             fill: currentColor;
         }
 
+        /* RODAPÉ */
         footer {
             margin-top: 50px;
             padding: 20px 0;
@@ -590,11 +599,13 @@
             text-decoration: none;
         }
 
+        /* ANIMAÇÕES */
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
 
+        /* RESPONSIVO */
         @media (max-width: 600px) {
             header h1 {
                 font-size: 2rem;
@@ -666,11 +677,13 @@
 </head>
 <body>
     <div class="container">
+        <!-- CABEÇALHO -->
         <header>
             <h1>Mon<span>4</span>rkaa</h1>
             <p>🎮 Games que já zerei — clique na capa para ver a sinopse</p>
         </header>
 
+        <!-- BOTÕES DE AÇÃO -->
         <div class="action-buttons">
             <a href="https://www.youtube.com/@Mon4rkaa?sub_confirmation=1" 
                target="_blank" 
@@ -707,12 +720,14 @@
             </button>
         </div>
 
+        <!-- SEÇÃO PRÓXIMOS JOGOS -->
         <div class="proximos-jogos" id="proximosJogos">
             <h2>🎯 Próximos games em votação</h2>
             <p>Ajude a decidir qual será o próximo game gravado no canal!</p>
             <div class="jogos-lista" id="jogosVotacaoLista"></div>
         </div>
 
+        <!-- GRADE DE GAMES ZERADOS -->
         <h2 style="color: #cc0000; margin-bottom: 20px; font-size: 1.5rem;">🎮 Games já zerados</h2>
         <div class="games-grid" id="gamesGrid"></div>
 
@@ -817,7 +832,7 @@
         ];
 
         // ============================================================
-        //  LISTA DE JOGOS PARA VOTAÇÃO
+        //  LISTA DE JOGOS PARA VOTAÇÃO (PRÓXIMOS GAMES)
         // ============================================================
         const jogosVotacao = [
             { id: 'v1', nome: "Dead Space Remake", destaque: false },
@@ -829,7 +844,7 @@
         //  CONFIGURAÇÃO DO GOOGLE FORMS
         // ============================================================
         const GOOGLE_FORMS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSd_AIi3fKt4cWSTqTQ7K0BU4XxLxeVAZ7QaYjCpkTcfNCb3eg/viewform';
-        const FORM_ENTRY_ID = 'entry.1234567890'; // 👈 SUBSTITUA PELO ID CORRETO
+        const FORM_ENTRY_ID = 'entry.1786097898'; // 👈 SUBSTITUA PELO ID CORRETO
 
         // ============================================================
         //  RENDERIZA OS CARDS DOS GAMES ZERADOS
@@ -908,7 +923,7 @@
         });
 
         // ============================================================
-        //  MODAL DE ENQUETE - VERSÃO CORRIGIDA
+        //  MODAL DE ENQUETE
         // ============================================================
         const modalEnquete = document.getElementById('modalEnquete');
         const btnAbrirEnquete = document.getElementById('btnAbrirEnquete');
@@ -962,7 +977,7 @@
         });
 
         // ============================================================
-        //  ENVIA VOTO - MÉTODO CORRIGIDO (abre em nova aba)
+        //  ENVIA VOTO (abre em nova aba com o voto pré-selecionado)
         // ============================================================
         formEnquete.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -975,8 +990,7 @@
 
             const gameEscolhido = opcaoSelecionada.value;
             
-            // Constrói a URL com o parâmetro
-            // Exemplo: https://docs.google.com/forms/d/e/SEU_ID/viewform?entry.1234567890=God+of+War+Ragnar%C3%B6k
+            // Constrói a URL com o parâmetro do voto
             const urlComVoto = `${GOOGLE_FORMS_URL}?${FORM_ENTRY_ID}=${encodeURIComponent(gameEscolhido)}`;
             
             // Abre em nova aba
